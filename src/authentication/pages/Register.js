@@ -35,7 +35,11 @@ const Register = (props) => {
         }
     }
     const handleResgister = async () => {
-        if (!CheckMail(email)) {
+        if (email.length === 0 || pass.length === 0 || rePass.length === 0 || otp.length === 0) {
+            toast.error("Nhập đầy đủ thông tin");
+        } else if (pass.length < 6) {
+            toast.error("Mật khẩu phải đủ từ 6 kỳ tự trở lên");
+        } else if (!CheckMail(email)) {
             toast.error("Sai định dạng mail");
         } else if (pass !== rePass) {
             toast.error("Nhập lại mật khẩu không đúng");

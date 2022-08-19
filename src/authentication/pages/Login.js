@@ -11,8 +11,8 @@ import API from "../../api/config"
 import { post } from "../../api/axios";
 
 export default function Login(props) {
-    const [email, setEmail] = useState();
-    const [pass, setPass] = useState();
+    const [email, setEmail] = useState("");
+    const [pass, setPass] = useState("");
     const [isSendOtp, setIsSendOtp] = useState(true)
     const [timeCountDown, setTimeCountDown] = useState('')
     const [totp, setTotp] = useState('');
@@ -58,7 +58,11 @@ export default function Login(props) {
     }
 
     const handleLogin = async () => {
-        if (!CheckMail(email)) {
+        if (email.length === 0 || pass.length === 0 || totp.length === 0) {
+            toast.error("Nhập đầy đủ thông tin");
+        } else if (pass.length < 6) {
+            toast.error("Mật khẩu phải đủ từ 6 kỳ tự trở lên");
+        } else if (!CheckMail(email)) {
             toast.error("Sai định dạng mail");
         } else {
             post(API.URL_LOGIN_USER, {
