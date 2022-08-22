@@ -21,6 +21,8 @@ import { get, post } from '../../../../api/axios';
 import { useDispatch } from 'react-redux';
 import { updateAlbumShare } from '../../../../actions/userAction';
 import { toast } from "react-toastify"
+import { userLogOut } from '../../../../actions/userAction';
+import CheckToken from '../../../../helper/CheckToken';
 
 const style = {
     position: 'absolute',
@@ -63,7 +65,11 @@ export default function ModalShare(props) {
         if (search.length !== 0) {
             get(API.URL_SEARCH_USER + `?email=${search}`)
                 .then(res => {
-                    setListUser(res.data.user)
+                    if (res.data.status === 401) {
+                        dispatch(userLogOut())
+                    } else {
+                        setListUser(res.data.user)
+                    }
                 })
                 .catch(err => {
                     alert(err)
@@ -75,7 +81,11 @@ export default function ModalShare(props) {
     const callApiShareAlbum = () => {
         post(API.URL_SHARE_ALBUM, { listUser: checked, idAlbum: props.album._id })
             .then(res => {
+                if (res.data.status === 401) {
+                    dispatch(userLogOut())
+                }
                 if (res.data.status === 1) {
+                    CheckToken()
                     toast.success("Chia sẻ album thành công")
                     setChecked([])
                     setListUser(null)
@@ -91,9 +101,12 @@ export default function ModalShare(props) {
     const callApiShareImage = () => {
         post(API.URL_SHARE_IMAGE, { listUser: checked, idImage: props.image._id })
             .then(res => {
+                if (res.data.status === 401) {
+                    dispatch(userLogOut())
+                }
                 if (res.data.status === 1) {
                     toast.success("Chia sẻ image thành công")
-
+                    CheckToken()
                     setChecked([])
                     setListUser(null)
                     props.updateImage(res.data.image)

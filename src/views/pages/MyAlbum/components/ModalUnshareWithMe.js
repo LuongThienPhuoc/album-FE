@@ -4,12 +4,13 @@ import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import "./CardNameAlbum.scss"
-import { deleteAxios, post } from '../../../../api/axios';
+import { post } from '../../../../api/axios';
 import API from "../../../../api/config";
 import { unshareAlbumWithMe, unshareImageWithMe } from '../../../../actions/userAction';
 import { useDispatch } from 'react-redux';
 import { toast } from "react-toastify"
-
+import { userLogOut } from '../../../../actions/userAction';
+import CheckToken from '../../../../helper/CheckToken';
 const style = {
     position: 'absolute',
     top: '50%',
@@ -35,7 +36,11 @@ export default function ModalDelete(props) {
         post(API.URL_UNSHARE_ALBUM_WITH_ME, {
             idAlbum: props.album._id,
         }).then(res => {
+            if (res.data.status === 401) {
+                dispatch(userLogOut())
+            }
             if (res.data.status === 1) {
+                CheckToken()
                 dispatch(unshareAlbumWithMe(props.album._id))
                 toast.success("Unshare album thành công")
             }
@@ -50,7 +55,11 @@ export default function ModalDelete(props) {
         post(API.URL_UNSHARE_IMAGE_WITH_ME, {
             idImage: props.image._id
         }).then(res => {
+            if (res.data.status === 401) {
+                dispatch(userLogOut())
+            }
             if (res.data.status === 1) {
+                CheckToken()
                 toast.success("Unshare image thành công")
                 dispatch(unshareImageWithMe(props.image._id))
             }

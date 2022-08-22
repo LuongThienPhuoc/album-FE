@@ -18,9 +18,9 @@ import axios from "axios"
 import { post } from "../../../api/axios"
 import CircularProgress from '@mui/material/CircularProgress';
 import Resizer from "react-image-file-resizer";
-import { updateAlbum } from '../../../actions/userAction';
+import { updateAlbum, userLogOut } from '../../../actions/userAction';
 import { toast } from 'react-toastify';
-
+import CheckToken from '../../../helper/CheckToken';
 export default function Upload(props) {
     const user = useSelector(state => state.user)
     const dispatch = useDispatch()
@@ -111,7 +111,13 @@ export default function Upload(props) {
                 },
                 encType: "multipart/form-data",
             }).then(res => {
-                callCheckUpLoad(res.data.key)
+                if (res.data.status === 401) {
+                    dispatch(userLogOut())
+                }
+                if (res.data.status === 1) {
+                    callCheckUpLoad(res.data.key)
+                }
+
             }).catch(err => {
                 alert(err)
             })

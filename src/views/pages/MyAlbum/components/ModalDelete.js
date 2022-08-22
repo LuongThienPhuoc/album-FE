@@ -6,10 +6,10 @@ import Typography from '@mui/material/Typography';
 import "./CardNameAlbum.scss"
 import { deleteAxios, post } from '../../../../api/axios';
 import API from "../../../../api/config";
-import { updateDataUser, updateAlbum } from '../../../../actions/userAction';
+import { userLogOut, updateAlbum } from '../../../../actions/userAction';
 import { useDispatch } from 'react-redux';
 import { toast } from "react-toastify"
-
+import CheckToken from '../../../../helper/CheckToken';
 const style = {
     position: 'absolute',
     top: '50%',
@@ -37,7 +37,11 @@ export default function ModalDelete(props) {
             _id: props.album._id,
             email: props.user.dataUser.email
         }).then(res => {
+            if (res.data.status === 401) {
+                dispatch(userLogOut())
+            }
             if (res.data.status === 1) {
+                CheckToken()
                 dispatch(updateAlbum(res.data.data.albums))
                 toast.success("Xóa album thành công")
             }
@@ -50,7 +54,11 @@ export default function ModalDelete(props) {
 
     const handleDeleteImage = () => {
         deleteAxios(API.URL_DELETE_IMAGE + `?email=${props.user.dataUser.email}&idImage=${props.image._id}`).then(res => {
+            if (res.data.status === 401) {
+                dispatch(userLogOut())
+            }
             if (res.data.status === 1) {
+                CheckToken()
                 toast.success("Xóa image thành công")
                 props.deleteImage(res.data.idImage)
             }

@@ -1,5 +1,6 @@
 const URL_SYSTEM_V1 = "http://localhost:5001/api/v1"
 export default {
+    URL_GET_TOKEN: URL_SYSTEM_V1 + "/users/get-token",
     URL_LOGIN_USER: URL_SYSTEM_V1 + "/users/login",
     URL_SENT_TOTP: URL_SYSTEM_V1 + "/users/sendTotp",
     URL_REGISTER_USER: URL_SYSTEM_V1 + "/users/resgister",

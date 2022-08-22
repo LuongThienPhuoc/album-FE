@@ -20,7 +20,7 @@ import { userLogin } from "./actions/userAction";
 import { useDispatch } from 'react-redux'
 import Loading from "./views/layout-components/components/Loading";
 import { get } from "./api/axios";
-
+import CheckToken from "./helper/CheckToken";
 const Routers = () => {
     const user = useSelector(state => state.user)
     const dispatch = useDispatch()
@@ -31,7 +31,8 @@ const Routers = () => {
             get(API.URL_REFRESH)
                 .then(res => {
                     if (res.data.status === 1) {
-                        dispatch(userLogin(res.data.user, res.data.token))
+                        dispatch(userLogin(res.data.user))
+                        CheckToken()
                     }
                     setIsLoaded(true)
                 })

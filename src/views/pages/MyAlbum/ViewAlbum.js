@@ -13,9 +13,13 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CircularProgress from '@mui/material/CircularProgress';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
+import CheckToken from '../../../helper/CheckToken';
+import { userLogOut } from '../../../actions/userAction';
+import { useDispatch } from 'react-redux/es/exports';
 
 export default function ViewAlbum() {
     const params = useParams()
+    const dispatch = useDispatch()
     const navigate = useNavigate()
     const [album, setAlbum] = useState({})
     const [isLoaded, setIsLoaded] = useState(false)
@@ -62,7 +66,11 @@ export default function ViewAlbum() {
     useEffect(() => {
         get(API.URL_GET_IMAGES_ALBUM + `?id=${params.id}`)
             .then(res => {
+                if (res.data.status === 401) {
+                    dispatch(userLogOut())
+                }
                 if (res.data.status === 1) {
+                    CheckToken()
                     setAlbum(res.data.album)
                     setIsLoaded(true)
                 }

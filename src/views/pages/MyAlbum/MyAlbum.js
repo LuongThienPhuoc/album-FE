@@ -11,12 +11,14 @@ import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import { useSelector, useDispatch } from "react-redux"
 import API from '../../../api/config'
-import { updateAlbum } from '../../../actions/userAction';
+import { updateAlbum, userLogOut } from '../../../actions/userAction';
 import { toast } from "react-toastify"
 import Search from './components/Search';
 import { post } from '../../../api/axios';
 import CardNameAlbumShare from "./components/CardNameAlbumShare"
 import CardImageShare from './components/CardImageShare';
+import CheckToken from '../../../helper/CheckToken';
+
 const style = {
     position: 'absolute',
     top: '50%',
@@ -44,9 +46,15 @@ export default function MyAlbum() {
         if (nameAlbum !== "") {
             post(API.URL_ADD_ALBUM, { nameAlbum, email: user.dataUser.email })
                 .then(res => {
-                    dispatch(updateAlbum(res.data.dataUser.albums))
-                    toast.success("Tạo album thành công!")
-                    handleClose()
+                    if (res.data.status === 401) {
+                        dispatch(userLogOut())
+                    } else {
+                        CheckToken()
+                        dispatch(updateAlbum(res.data.dataUser.albums))
+                        toast.success("Tạo album thành công!")
+                        handleClose()
+                    }
+
                 })
                 .catch(err => {
                     toast.error("Tên album tồn tại!")
@@ -61,7 +69,7 @@ export default function MyAlbum() {
         <div className='my-album'>
             <Search></Search>
             <div className='my-album-is-me'>
-                <Typography sx={{ fontSize: 20, fontWeight: '600' }} variant="h3" color="text.secondary" gutterBottom>
+                <Typography onClick={CheckToken} sx={{ fontSize: 20, fontWeight: '600' }} variant="h3" color="text.secondary" gutterBottom>
                     Album của bạn
                 </Typography>
                 <Fab onClick={handleOpen} color="primary" aria-label="add">

@@ -4,15 +4,24 @@ import { useParams } from 'react-router-dom';
 import API from "../../../api/config"
 import { get } from "../../../api/axios"
 import { Grid, Container } from "@mui/material";
+import CheckToken from "../../../helper/CheckToken";
+import { userLogOut } from "../../../actions/userAction";
+import { useDispatch } from "react-redux";
+
 import "./ViewImage.scss"
 export default function ImageViewer() {
+    const dispatch = useDispatch()
     const params = useParams()
     const [image, setImage] = useState(null)
     useEffect(() => {
         const fetApi = async () => {
             await get(API.URL_GET_IMAGE + "?idImage=" + params.id)
                 .then(res => {
+                    if (res.data.status === 401) {
+                        dispatch(userLogOut())
+                    }
                     if (res.data.status === 1) {
+                        CheckToken()
                         const hashUrl = res.data.image.imgURL.split("/")
                         const nameUrl = hashUrl[5].split(".png")
                         res.data.image.nameUrl = nameUrl[0]

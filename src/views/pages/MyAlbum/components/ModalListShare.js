@@ -14,9 +14,9 @@ import API from '../../../../api/config'
 import { Button } from '@mui/material';
 import { post } from '../../../../api/axios';
 import { useDispatch } from 'react-redux';
-import { updateAlbumShare } from '../../../../actions/userAction';
+import { updateAlbumShare, userLogOut } from '../../../../actions/userAction';
 import { toast } from "react-toastify"
-
+import CheckToken from '../../../../helper/CheckToken';
 const style = {
     position: 'absolute',
     top: '50%',
@@ -31,6 +31,7 @@ const style = {
 };
 
 export default function ModalListShare(props) {
+
     const [open, setOpen] = useState(false);
     const dispatch = useDispatch()
     const handleClose = () => {
@@ -56,10 +57,16 @@ export default function ModalListShare(props) {
                 listUser: checked,
                 idAlbum: props.album._id
             }).then(res => {
-                toast.success("Unshare album thành công")
-                setChecked([])
-                dispatch(updateAlbumShare(res.data.album))
-                handleClose()
+                if (res.data.status === 401) {
+                    dispatch(userLogOut())
+                } else {
+                    CheckToken()
+                    toast.success("Unshare album thành công")
+                    setChecked([])
+                    dispatch(updateAlbumShare(res.data.album))
+                    handleClose()
+                }
+
             }).catch(err => {
                 alert(err)
             })
@@ -74,10 +81,16 @@ export default function ModalListShare(props) {
                 listUser: checked,
                 idImage: props.image._id
             }).then(res => {
-                toast.success("Unshare image thành công")
-                setChecked([])
-                props.updateImage(res.data.image)
-                handleClose()
+                if (res.data.status === 401) {
+                    dispatch(userLogOut())
+                } else {
+                    CheckToken()
+                    toast.success("Unshare image thành công")
+                    setChecked([])
+                    props.updateImage(res.data.image)
+                    handleClose()
+                }
+
             }).catch(err => {
                 alert(err)
             })
