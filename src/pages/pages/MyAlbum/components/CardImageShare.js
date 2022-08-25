@@ -15,7 +15,7 @@ export default function CardImageShare(props) {
     const [openModalUnshareWithMe, setOpenModalUnshareWithMe] = useState(false)
 
     return (
-        <Grid item xs={12} lg={4} md={6} xl={3}>
+        <Grid item sm={6} lg={3} md={4} xs={12}>
             <ModalUnshareWithMe isOpen={openModalUnshareWithMe} setOpenModalUnshareWithMe={setOpenModalUnshareWithMe} unshareAlbum={false} image={props.image}></ModalUnshareWithMe>
             <Card className='card-image' >
                 <div className='modal-card-image'>

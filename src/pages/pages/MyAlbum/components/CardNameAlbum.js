@@ -9,12 +9,16 @@ import { useSelector } from "react-redux"
 import Typography from '@mui/material/Typography';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Link } from 'react-router-dom'
-import ModalUnshareWithMe from "./ModalUnshareWithMe"
 import "./CardNameAlbum.scss"
-
-
+import ModalShare from './ModalShare';
+import ModalDelete from './ModalDelete';
+import ModalEdit from './ModalEdit'
+import ModalListShare from './ModalListShare';
 export default function CardNameAlbum(props) {
-    const [openModalUnshareWithMe, setOpenModalUnshareWithMe] = useState(false)
+    const [openModalShare, setOpenModalShare] = useState(false)
+    const [openModalListShare, setOpenModalListShare] = useState(false)
+    const [openModalDelete, setOpenModalDelete] = useState(false)
+    const [openModalEdit, setOpenModalEdit] = useState(false)
 
     const renderDate = (date) => {
         let time = new Date(date)
@@ -32,14 +36,20 @@ export default function CardNameAlbum(props) {
     }
 
     return (
-        <Grid item xs={12} lg={4} md={6} xl={3}>
-            <Box sx={{ minWidth: 275 }}>
-                <ModalUnshareWithMe isOpen={openModalUnshareWithMe} setOpenModalUnshareWithMe={setOpenModalUnshareWithMe} unshareAlbum={true} album={props.album}></ModalUnshareWithMe>
+        <Grid item sm={6} lg={3} md={4} xs={12} >
+            <ModalShare isOpen={openModalShare} setOpenModalShare={setOpenModalShare} shareAlbum={true} album={props.album}></ModalShare>
+            <ModalListShare isOpen={openModalListShare} setOpenModalShare={setOpenModalListShare} shareAlbum={true} album={props.album}></ModalListShare>
+            <ModalDelete isOpen={openModalDelete} deleteAlbum={true} setOpenModalDelete={setOpenModalDelete} album={props.album} user={user}></ModalDelete>
+            <ModalEdit isOpen={openModalEdit} album={props.album} nameAlbum={props.album?.name} setOpenModalEdit={setOpenModalEdit}></ModalEdit>
+            <Box >
                 <Card className='card-album' sx={{ position: 'relative' }} variant="outlined">
                     <div className='card-name-album_option-icon' >
                         <MoreVertIcon sx={{ transform: 'translateY(2px)' }}></MoreVertIcon>
                         <ul>
-                            <li onClick={() => { setOpenModalUnshareWithMe(true) }}>Un Share</li>
+                            <li onClick={() => { setOpenModalEdit(true) }}>Edit</li>
+                            <li onClick={() => { setOpenModalDelete(true) }}>Delete</li>
+                            <li onClick={() => { setOpenModalShare(true) }}>Share</li>
+                            <li onClick={() => { setOpenModalListShare(true) }}>List share</li>
                         </ul>
                     </div>
                     <CardContent>
@@ -55,7 +65,6 @@ export default function CardNameAlbum(props) {
                         <Typography sx={{ mb: 1.5 }} color="text.secondary">
                             {props.album?.images?.length ? props.album.images.length : "0"} ảnh
                         </Typography>
-                        <p>Author: {props.album.users[0].email}</p>
                     </CardContent>
                     <CardActions>
                         <Button size="small">

@@ -86,6 +86,7 @@ export default function Login(props) {
 
     return (
         <div className="body">
+            <img style={{ position: "fixed", top: "100px", left: "20px" }} src="./login.png" alt="IMAGE " />
             <form className="form">
                 <Link to={"/register"}>
                     <div className="direction">

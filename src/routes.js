@@ -8,17 +8,18 @@ import {
 import { ToastContainer } from 'react-toastify';
 import { useSelector } from "react-redux/es/exports";
 
+import Profile from "./pages/pages/Profile/Profile";
 import Login from "./authentication/pages/Login";
 import Register from "./authentication/pages/Register";
-import TheContent from "./views/layout-components/TheContent";
-import Upload from "./views/pages/Upload/Upload";
-import MyAlbum from "./views/pages/MyAlbum/MyAlbum";
-import ViewAlbum from "./views/pages/MyAlbum/ViewAlbum";
-import ViewImage from "./views/pages/ViewImage/ViewImage";
+import TheContent from "./pages/layout-components/TheContent";
+import Upload from "./pages/pages/Upload/Upload";
+import MyAlbum from "./pages/pages/MyAlbum/MyAlbum";
+import ViewAlbum from "./pages/pages/MyAlbum/ViewAlbum";
+import ViewImage from "./pages/pages/ViewImage/ViewImage";
 import API from './api/config'
 import { userLogin } from "./actions/userAction";
 import { useDispatch } from 'react-redux'
-import Loading from "./views/layout-components/components/Loading";
+import Loading from "./pages/layout-components/components/Loading";
 import { get } from "./api/axios";
 import CheckToken from "./helper/CheckToken";
 const Routers = () => {
@@ -86,7 +87,11 @@ const Routers = () => {
                                     path={'/my-album'}
                                     element={<MyAlbum></MyAlbum>}
                                 ></Route>
-
+                                <Route
+                                    path="/profile"
+                                    element={<Profile></Profile>}
+                                >
+                                </Route>
                             </Route>
                         ) : (
                             <>

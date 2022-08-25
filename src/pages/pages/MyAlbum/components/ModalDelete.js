@@ -6,10 +6,11 @@ import Typography from '@mui/material/Typography';
 import "./CardNameAlbum.scss"
 import { deleteAxios, post } from '../../../../api/axios';
 import API from "../../../../api/config";
-import { userLogOut, updateAlbum } from '../../../../actions/userAction';
+import { userLogOut, updateAlbum, updateImageAfterDelete } from '../../../../actions/userAction';
 import { useDispatch } from 'react-redux';
 import { toast } from "react-toastify"
 import CheckToken from '../../../../helper/CheckToken';
+import { useNavigate } from 'react-router-dom';
 const style = {
     position: 'absolute',
     top: '50%',
@@ -25,6 +26,7 @@ const style = {
 
 export default function ModalDelete(props) {
     const dispatch = useDispatch()
+    const navigate = useNavigate()
     const [open, setOpen] = useState(false);
     const handleClose = () => {
         setOpen(false);
@@ -53,14 +55,21 @@ export default function ModalDelete(props) {
     }
 
     const handleDeleteImage = () => {
+        console.log("click  ")
         deleteAxios(API.URL_DELETE_IMAGE + `?email=${props.user.dataUser.email}&idImage=${props.image._id}`).then(res => {
             if (res.data.status === 401) {
                 dispatch(userLogOut())
             }
             if (res.data.status === 1) {
                 CheckToken()
+                dispatch(updateImageAfterDelete(props.image._id, props.idAlbum))
                 toast.success("Xóa image thành công")
-                props.deleteImage(res.data.idImage)
+                if (props.backAlbum) {
+                    navigate(`/my-album/${props.idAlbum}`)
+                }
+                if (props.deleteImage) {
+                    props.deleteImage(res.data.idImage)
+                }
             }
         }).catch(err => {
             toast.error("Xóa image thất bại")
@@ -70,6 +79,7 @@ export default function ModalDelete(props) {
     }
 
     const handleClickDeleteAlbum = () => {
+        console.log(props.deleteAlbum)
         if (props.deleteAlbum) {
             handleDeleteAlbum()
         } else {

@@ -15,6 +15,7 @@ const Register = (props) => {
     const [timeCountDown, setTimeCountDown] = useState('')
     const [isSendOtp, setIsSendOtp] = useState(true)
     const navigate = useNavigate()
+
     const handleSendOtp = async () => {
         if (!CheckMail(email)) {
             toast.error("Sai định dạng mail");
@@ -34,6 +35,7 @@ const Register = (props) => {
             })
         }
     }
+
     const handleResgister = async () => {
         if (email.length === 0 || pass.length === 0 || rePass.length === 0 || otp.length === 0) {
             toast.error("Nhập đầy đủ thông tin");
@@ -80,6 +82,7 @@ const Register = (props) => {
 
     return (
         <div className="body">
+            <img style={{ position: "fixed", top: "80px", left: "20px" }} src="./login.png" alt="IMAGE preview" />
             <form className="form">
                 <Link to={"/login"}>
                     <div className="direction">

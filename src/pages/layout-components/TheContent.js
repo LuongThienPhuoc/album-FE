@@ -13,12 +13,15 @@ import MenuItem from '@mui/material/MenuItem';
 import { Outlet, NavLink } from "react-router-dom";
 import "./TheContent.scss"
 import { userLogOut } from '../../actions/userAction';
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom';
-
+import DarkMode from '../pages/Profile/components/DarkMode';
+import { Divider } from '@mui/material';
 const TheContent = () => {
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+    const user = useSelector(state => state.user.dataUser)
 
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
@@ -140,9 +143,10 @@ const TheContent = () => {
                         </Box>
 
                         <Box sx={{ flexGrow: 0 }}>
+                            <span style={{ marginRight: "10px", fontWeight: '500' }}>{user?.name}</span>
                             <Tooltip title="Open settings">
                                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                    <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                                    <Avatar alt="Remy Sharp" src={user?.avatarURL} />
                                 </IconButton>
                             </Tooltip>
                             <Menu
@@ -161,8 +165,12 @@ const TheContent = () => {
                                 open={Boolean(anchorElUser)}
                                 onClose={handleCloseUserMenu}
                             >
+                                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                    <DarkMode></DarkMode>
+                                </div>
+                                <Divider></Divider>
                                 <MenuItem onClick={handleCloseUserMenu}>
-                                    <Typography textAlign="center">Profile</Typography>
+                                    <Typography onClick={() => { navigate("/profile") }} textAlign="center">Profile</Typography>
                                 </MenuItem>
                                 <MenuItem onClick={handleCloseUserMenu}>
                                     <Typography onClick={handleLogoutUser} textAlign="center">Logout</Typography>

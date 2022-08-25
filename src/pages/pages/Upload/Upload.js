@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react'
 import API from "../../../api/config"
 import { useSelector } from 'react-redux';
 import { TextField, Grid, Select, MenuItem, InputLabel, FormControl, Button } from '@mui/material';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import "./Upload.scss"
 import FormData from 'form-data';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
@@ -18,9 +17,27 @@ import axios from "axios"
 import { post } from "../../../api/axios"
 import CircularProgress from '@mui/material/CircularProgress';
 import Resizer from "react-image-file-resizer";
-import { updateAlbum, userLogOut } from '../../../actions/userAction';
+import { updateAlbum1 } from '../../../actions/userAction';
 import { toast } from 'react-toastify';
 import CheckToken from '../../../helper/CheckToken';
+import LoadingFixed from '../../layout-components/components/LoadingFixed';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import DeleteIcon from '@mui/icons-material/Delete';
+
+const styles = theme => ({
+    textField: {
+        width: '90%',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        paddingBottom: 0,
+        marginTop: 0,
+        fontWeight: 500
+    },
+    input: {
+        color: 'white'
+    }
+});
+
 export default function Upload(props) {
     const user = useSelector(state => state.user)
     const dispatch = useDispatch()
@@ -31,13 +48,17 @@ export default function Upload(props) {
     const handleChange = (event) => {
         setAlbum(event.target.value);
     };
+    const [isLoading, setIsLoading] = useState(false)
 
     //////////////////
-    const [files, setFiles] = useState();
+    const [files, setFiles] = useState([]);
     const [arrFiles, setArrFiles] = useState([])
     const [previewUrl, setPreviewUrl] = useState([])
     const [statusLoad, setStatusLoad] = useState(null)
 
+    useEffect(() => {
+        document.title = "Upload Image"
+    }, [])
     useEffect(() => {
         const init = async (i) => {
             if (i === arrFiles.length) return
@@ -60,27 +81,49 @@ export default function Upload(props) {
                 200
             );
         }
-
         init(0)
     }, [arrFiles])
+
+    // useEffect(() => {
+    //     return async () => {
+    //         console.log("calll api clear rasc")
+    //         await axios.get(API.URL_CLEAR_IMAGE_TRASH)
+    //     }
+    // }, [])
 
     const filePickerRef = useRef()
     const pickedHandler = (e) => {
         if ([...e.target.files].length <= 20) {
-            setPreviewUrl([])
             setArrFiles([...e.target.files])
-            setFiles(e.target.files)
+            console.log(e.target.files)
+            setFiles((oldState) => {
+                return [
+                    ...oldState,
+                    ...e.target.files
+                ]
+            })
         } else {
             toast.error("Bạn được nhập tối đa 20 file ảnh")
         }
     }
 
+    const handleClickDeleteImage = (index) => {
+        setPreviewUrl(oldState => oldState.filter((preview, key) => key !== index))
+        setFiles(oldState => oldState.filter((files, key) => key !== index))
+        toast.success("Xóa ảnh thành công!")
+    }
+
     const submitForm = async (e) => {
         e.preventDefault()
-        if (!loading && !statusLoad) {
-            setStatusLoad(new Array(arrFiles.length).fill(0))
+        if (files.length === 0) {
+            toast.warning("Vui lòng nhập file!")
+        } else if (files.length > 20) {
+            toast.warning("Tối đa 20 files!")
+
+        } else if (!loading && !statusLoad) {
+            setStatusLoad(new Array(files.length).fill("0"))
             const data = new FormData()
-            for (var x = 0; x < files.length; x++) {
+            for (let x = 0; x < files.length; x++) {
                 data.append('file', files[x])
             }
             data.append("email", user.dataUser.email)
@@ -88,6 +131,7 @@ export default function Upload(props) {
             data.append("albumId", album)
             setSuccess(false);
             setLoading(true);
+            setIsLoading(true)
             axios({
                 headers: {
                     "Content-Type": "multipart/form-data",
@@ -95,7 +139,7 @@ export default function Upload(props) {
                 withCredentials: true,
                 method: "POST",
                 data: data,
-                url: "/api/v1/image/upload", // route name
+                url: "/api/v1/image/upload1", // route name
                 baseURL: "http://localhost:5001", //local url
                 onUploadProgress: (progress) => {
                     const { total, loaded } = progress;
@@ -111,11 +155,11 @@ export default function Upload(props) {
                 },
                 encType: "multipart/form-data",
             }).then(res => {
-                if (res.data.status === 401) {
-                    dispatch(userLogOut())
-                }
+
                 if (res.data.status === 1) {
-                    callCheckUpLoad(res.data.key)
+                    setIsLoading(false)
+                    CheckToken()
+                    callCheckUpLoad1(res.data.listImage)
                 }
 
             }).catch(err => {
@@ -124,20 +168,27 @@ export default function Upload(props) {
         }
     }
 
-    const callCheckUpLoad = (key) => {
+    const callCheckUpLoad1 = (listImage) => {
         let timer = setInterval(async () => {
-            await post(API.URL_CHECK_UPLOAD_IMAGE, { key, email: user.dataUser.email }).then(res => {
-                setStatusLoad(res.data.checkUpload)
-                if (res.data.checkUpload[res.data.checkUpload.length - 1] !== 0) {
-                    toast.success("Upload thành công")
-                    dispatch(updateAlbum(res.data.user.albums))
-                    setTimeout(() => {
-                        navigate("/my-album")
-                    }, 2000)
-                    clearInterval(timer)
-                }
-            })
-        }, 1000)
+            await post(API.URL_CHECK_UPLOAD_IMAGE + "1", { listImage })
+                .then(async (res) => {
+                    if (res.data.status === 1) {
+                        CheckToken()
+                        let status = res.data.images.map(image => image.initImage)
+                        setStatusLoad(status)
+                        console.log(status[status.length - 1])
+                        if (status[status.length - 1] !== "0") {
+                            toast.success("Upload thành công")
+                            let imageSuccess = await res.data.images.filter(image => image.initImage === "1")
+                            dispatch(updateAlbum1(imageSuccess, album))
+                            setTimeout(() => {
+                                navigate("/my-album")
+                            }, 2000)
+                            clearInterval(timer)
+                        }
+                    }
+                })
+        }, 500)
     }
 
     const [progress, setProgress] = useState(0)
@@ -156,53 +207,79 @@ export default function Upload(props) {
         refBtn.current.click()
     };
 
+    const darkmode = useSelector(state => state.user.darkmode)
+
     return (
-        <div className='upload'>
+        <div style={{ backgroundColor: darkmode ? "white" : "#1f2125", paddingBottom: '200px ' }} className='upload'>
+            {isLoading && <LoadingFixed></LoadingFixed>}
             <div className='modal'>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
-                        <p style={{ textAlign: 'center' }} className='title'>IMAGE UPLOAD</p>
-                        <iframe name="dummyframe" id="dummyframe" style={{ display: 'none' }} />
+                        <p style={{ textAlign: 'center', color: "#F6CB18" }} className='title'>IMAGE UPLOAD</p>
                     </Grid>
                     <Grid item xs={12}>
                         <form onSubmit={submitForm} method="post" action={`${API.URL_UPLOAD_USER}`} target="dummyframe" encType="multipart/form-data">
                             <Grid container spacing={2}>
                                 <Grid item xs={6}>
-                                    <div onClick={() => { filePickerRef.current.click() }} className='image-review'>
-                                        {previewUrl.length !== 0 && (
-                                            <Grid container spacing={2}>
-                                                {previewUrl.map((url, index) => (
-                                                    <Grid key={index} style={{ position: "relative" }} item xs={6}>
-                                                        <img src={url} style={{ height: '200px' }} alt='preview-image'>
-                                                        </img>
-                                                        {
-                                                            statusLoad ? statusLoad[index] === 0 ? (
-                                                                <div className='upload-background'>
-                                                                    <CircularProgress style={{ height: '60px ', width: '60px ' }} color="success" />
+                                    <div className='image-review'>
+                                        <Grid container spacing={2}>
+                                            {previewUrl.map((url, index) => (
+                                                <Grid className='card-image-add' key={index} style={{ position: "relative" }} item xs={6}>
+                                                    <img src={url} style={{ height: '200px', borderRadius: '8px' }} alt='preview-image1'>
+                                                    </img>
+                                                    {
+                                                        !statusLoad && (<div className='delete-icon' onClick={() => handleClickDeleteImage(index)}>
+                                                            <DeleteIcon style={{ width: '50px', height: '50px' }}></DeleteIcon>
+                                                        </div>)
+                                                    }
+
+                                                    {
+                                                        statusLoad ? statusLoad[index] === "0" ? (
+                                                            <div className='upload-background'>
+                                                                <CircularProgress style={{ height: '60px ', width: '60px ' }} color="success" />
+                                                            </div>
+                                                        ) : (
+                                                            statusLoad[index] === "1" ? (
+                                                                <div style={{ color: 'greenyellow' }} className='upload-background'>
+                                                                    <CheckBoxIcon style={{ fontSize: '40px' }}> </CheckBoxIcon>
                                                                 </div>
                                                             ) : (
-                                                                statusLoad[index] === true ? (
-                                                                    <div style={{ color: 'greenyellow' }} className='upload-background'>
-                                                                        <CheckBoxIcon style={{ fontSize: '40px' }}> </CheckBoxIcon>
-                                                                    </div>
-                                                                ) : (
-                                                                    <div style={{ color: 'red' }} className='upload-background'>
-                                                                        <CancelIcon style={{ fontSize: '40px' }}></CancelIcon>
-                                                                    </div>
-                                                                )
-                                                            ) : ""
-                                                        }
-                                                    </Grid>
-                                                ))}
+                                                                <div style={{ color: 'red' }} className='upload-background'>
+                                                                    <CancelIcon style={{ fontSize: '40px' }}></CancelIcon>
+                                                                </div>
+                                                            )
+                                                        ) : ""
+                                                    }
+                                                </Grid>
+                                            ))}
+                                            <Grid item xs={6}>
+                                                <img className='add-image' onClick={() => { filePickerRef.current.click() }} src={"./add-image.png"} style={{ height: '200px', borderRadius: '50%', backgroundColor: "#00000000", border: "4px solid #00000000" }} alt='preview-image123'>
+                                                </img>
                                             </Grid>
-                                        )}
-                                        {previewUrl.length === 0 && <CloudUploadIcon className='icon' />}
+                                        </Grid>
                                     </div>
                                 </Grid>
                                 <Grid item xs={6}>
                                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                        <TextField required onChange={(e) => { setNameImage(e.target.value) }} className="upload-input" name='nameImage' id="outlined-basic" label="Name Image" variant="outlined" size='small' />
-                                        <FormControl className="upload-input" fullWidth>
+                                        <TextField
+                                            required
+                                            onChange={(e) => { setNameImage(e.target.value) }}
+                                            className={"upload-input " + styles.textField} name='nameImage'
+                                            id="outlined-basic"
+                                            label="Name Image"
+                                            variant="outlined"
+                                            size='small'
+                                            style={{
+                                                backgroundColor: "white",
+                                                borderRadius: '8px'
+                                            }}
+                                            InputProps={{
+                                                style: {
+                                                    borderColor: 'white'
+                                                }
+                                            }}
+                                        />
+                                        <FormControl style={{ backgroundColor: "white", borderRadius: '8px' }} className="upload-input" fullWidth>
                                             <InputLabel id="demo-simple-select-label">Album</InputLabel>
                                             <Select
                                                 labelId="demo-simple-select-label"
@@ -221,7 +298,14 @@ export default function Upload(props) {
                                                 }
                                             </Select>
                                         </FormControl>
-                                        <input required className="upload-input-file" multiple type="file" name="image" accept='.jpg,.png,.jpeg' onChange={pickedHandler} ref={filePickerRef} /><br /><br />
+                                        <input style={{ display: 'none' }} className="upload-input-file" multiple type="file" name="image" accept='.jpg,.png,.jpeg,.gif' onChange={pickedHandler} ref={filePickerRef} />
+                                        {files.length > 0 && <p style={{ color: !darkmode ? "white" : "black" }}>Bạn chọn <span style={{ color: "#F6CB18", fontWeight: "600" }}>{files.length}</span> files</p>}
+                                        <Button onClick={() => { filePickerRef.current.click() }} variant="outlined"
+                                            style={{ color: !darkmode ? "#F6CB18" : "#1976d2", borderColor: !darkmode ? "#F6CB18" : "#1976d2" }}
+                                            startIcon={<InsertDriveFileIcon />}>
+                                            Choose file
+                                        </Button>
+                                        <br /><br />
                                         <Button style={{ display: 'none' }} type="submit" ref={refBtn} variant="contained">Upload</Button>
                                         <div style={{ display: 'flex', justifyContent: 'center' }}>
                                             <CircularProgress variant="determinate" value={progress} />
@@ -233,6 +317,7 @@ export default function Upload(props) {
                                                     color="primary"
                                                     sx={buttonSx}
                                                     type="submit"
+                                                    style={{ backgroundColor: !darkmode ? "#F6CB18" : "#1976d2" }}
                                                     onClick={handleButtonClick}
                                                 >
                                                     {success ? <CheckIcon /> : <SaveIcon />}
@@ -255,6 +340,7 @@ export default function Upload(props) {
                                                     variant="contained"
                                                     sx={buttonSx}
                                                     disabled={loading}
+                                                    style={{ backgroundColor: !darkmode ? "#F6CB18" : "#1976d2" }}
                                                     onClick={handleButtonClick}
                                                 >
                                                     Upload
@@ -274,7 +360,6 @@ export default function Upload(props) {
                                                 )}
                                             </Box>
                                         </Box>
-
                                     </div>
                                 </Grid>
                             </Grid>

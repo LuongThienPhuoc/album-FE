@@ -13,9 +13,9 @@ export default function OpenSeaDragon(props) {
                     Image: {
                         xmlns: "https://schemas.microsoft.com/deepzoom/2008",
                         Url: `http://localhost:5001/image/users/${props.image.users[0].email}/${props.image.album.name}/${props.image && props.image.nameUrl}/${props.image && props.image.nameUrl}_files/`,
-                        Format: "png",
+                        Format: "jpeg",
                         Overlap: "2",
-                        TileSize: "128",
+                        TileSize: "256",
                         Size: {
                             Width: `${props.image.width && props.image.width}`,
                             Height: ` ${props.image.height && props.image.height}`,

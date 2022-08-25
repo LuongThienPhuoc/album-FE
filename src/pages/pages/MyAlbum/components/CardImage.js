@@ -16,33 +16,54 @@ import ModalShare from './ModalShare';
 import ModalListShare from './ModalListShare';
 import { useSelector } from "react-redux"
 import ModalDelete from './ModalDelete';
+import ModalMoveImage from './ModalMoveImage';
 export default function CardImage(props) {
     const [openModalListShare, setOpenModalListShare] = useState(false)
     const navigate = useNavigate()
     const [openModalShare, setOpenModalShare] = useState(false)
     const [openModalDelete, setOpenModalDelete] = useState(false)
+    const [openModalMove, setOpenModalMove] = useState(false)
     const user = useSelector(state => state.user)
 
     return (
-        <Grid item sm={12} lg={4} md={6} xl={3}>
+        <Grid item sm={6} lg={3} md={4} xs={12} xl={2}>
             <ModalShare isOpen={openModalShare} updateImage={props.updateImage} setOpenModalShare={setOpenModalShare} shareAlbum={false} image={props.image}></ModalShare>
             <ModalListShare updateImage={props.updateImage} isOpen={openModalListShare} setOpenModalShare={setOpenModalListShare} users={props.users} shareAlbum={false} image={props.image}></ModalListShare>
-            <ModalDelete deleteImage={props.deleteImage} isOpen={openModalDelete} deleteAlbum={false} user={user} setOpenModalDelete={setOpenModalDelete} image={props.image}></ModalDelete>
+            <ModalDelete
+                idAlbum={props.idAlbum}
+                deleteImage={props.deleteImage}
+                isOpen={openModalDelete}
+                deleteAlbum={false}
+                user={user}
+                setOpenModalDelete={setOpenModalDelete}
+                image={props.image}
+            ></ModalDelete>
+            <ModalMoveImage updateAlbumAfterMove={props.updateAlbumAfterMove} isOpen={openModalMove} setOpenModalMove={setOpenModalMove} nameAlbum={props.nameAlbum} image={props.image}></ModalMoveImage>
             <Card className='card-image' sx={{ maxWidth: 345 }}>
                 <div className='modal-card-image'>
                     <div className='card-body'>
                         <IconButton onClick={() => { navigate(`${props.image._id}`) }} className='card-body-btn-icon' aria-label="delete">
                             <VisibilityIcon />
                         </IconButton>
-                        <IconButton onClick={() => { setOpenModalShare(true) }} className='card-body-btn-icon' aria-label="delete">
-                            <IosShareIcon />
-                        </IconButton>
-                        <IconButton onClick={() => { setOpenModalListShare(true) }} className='card-body-btn-icon' aria-label="delete">
-                            <RecentActorsIcon />
-                        </IconButton>
-                        <IconButton onClick={() => { setOpenModalDelete(true) }} className='card-body-btn-icon' aria-label="delete">
-                            <DeleteIcon />
-                        </IconButton>
+                        {
+                            props.isOwner && (
+                                <>
+                                    <IconButton onClick={() => { setOpenModalShare(true) }} className='card-body-btn-icon' aria-label="delete">
+                                        <IosShareIcon />
+                                    </IconButton>
+                                    <IconButton onClick={() => { setOpenModalMove(true) }} className='card-body-btn-icon' aria-label="delete">
+                                        <DriveFileMoveIcon />
+                                    </IconButton>
+                                    <IconButton onClick={() => { setOpenModalListShare(true) }} className='card-body-btn-icon' aria-label="delete">
+                                        <RecentActorsIcon />
+                                    </IconButton>
+                                    <IconButton onClick={() => { setOpenModalDelete(true) }} className='card-body-btn-icon' aria-label="delete">
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </>
+                            )
+                        }
+
                     </div>
                 </div>
                 <CardMedia

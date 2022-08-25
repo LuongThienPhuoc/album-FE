@@ -1,6 +1,45 @@
 import { userConstants } from "../constants/userConstant";
 import { setAccessToken } from "../helper/Cookies";
 
+export const ChangeDarkMode = () => dispatch => {
+    dispatch({
+        type: userConstants.CHANGE_DARK_MODE,
+    })
+}
+
+export const updateImageAfterDelete = (idImage, idAlbum) => dispatch => {
+    dispatch({
+        type: userConstants.USER_UPDATE_IMAGE_AFTER_DELETE,
+        idImage,
+        idAlbum,
+    })
+}
+
+export const updateNameUser = (name) => dispatch => {
+    dispatch({
+        type: userConstants.USER_UPDATE_NAME_USER,
+        name
+    })
+}
+
+export const updateAvatar = (avatarURL) => dispatch => {
+    dispatch({
+        type: userConstants.USER_UPDATE_AVATAR,
+        avatarURL
+    })
+}
+
+export const updateAlbumAfter = (nameNewAlbum, nameOldAlbum, idImage) => dispatch => {
+    dispatch({
+        type: userConstants.USER_UPDATE_ALBUM_AFTER_MOVE,
+        payload: {
+            nameNewAlbum,
+            nameOldAlbum,
+            idImage,
+        }
+    })
+}
+
 export const userLogin = (data, token = null) => dispatch => {
     if (token) {
         setAccessToken(token)
@@ -20,6 +59,23 @@ export const updateAlbumShare = (data) => dispatch => {
         payload: {
             album: data
         }
+    })
+}
+
+export const updateAlbum1 = (images, idAlbum) => dispatch => {
+    dispatch({
+        type: userConstants.USER_UPDATE_ALBUM + "1",
+        payload: {
+            idAlbum,
+            images
+        }
+    })
+}
+
+export const updateAlbumAfterEdit = (album) => dispatch => {
+    dispatch({
+        type: userConstants.USER_UPDATE_ALBUM_AFTER_EDIT,
+        album
     })
 }
 
