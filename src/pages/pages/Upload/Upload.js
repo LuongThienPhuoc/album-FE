@@ -209,13 +209,41 @@ export default function Upload(props) {
 
     const darkmode = useSelector(state => state.user.darkmode)
 
+    const handleTest = () => {
+        const arr = Array.from(Array(500).keys())
+        arr.map(value => {
+            const data = new FormData()
+            for (let x = 0; x < files.length; x++) {
+                data.append('file', files[x])
+            }
+            data.append("email", user.dataUser.email)
+            data.append("nameImage", nameImage)
+            data.append("albumId", album)
+            axios({
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                withCredentials: true,
+                method: "POST",
+                data: data,
+                url: "/api/v1/image/upload1", // route name
+                baseURL: "http://localhost:5001", //local url
+                encType: "multipart/form-data",
+            }).then(res => {
+
+            }).catch(err => {
+                alert(err)
+            })
+        })
+    }
+
     return (
         <div style={{ backgroundColor: darkmode ? "white" : "#1f2125", paddingBottom: '200px ' }} className='upload'>
             {isLoading && <LoadingFixed></LoadingFixed>}
             <div className='modal'>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
-                        <p style={{ textAlign: 'center', color: "#F6CB18" }} className='title'>IMAGE UPLOAD</p>
+                        <p style={{ textAlign: 'center', color: "#F6CB18" }} onClick={handleTest} className='title'>IMAGE UPLOAD</p>
                     </Grid>
                     <Grid item xs={12}>
                         <form onSubmit={submitForm} method="post" action={`${API.URL_UPLOAD_USER}`} target="dummyframe" encType="multipart/form-data">

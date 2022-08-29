@@ -68,6 +68,7 @@ export default function MyAlbum() {
     }
     useEffect(() => {
         document.title = "My Album"
+
     }, [])
     const [search, setSearch] = useState("");
     const [ownAlbumSearch, setOwnAlbumSearch] = useState([])
@@ -118,6 +119,19 @@ export default function MyAlbum() {
         })
     }, [search])
 
+    const handleTest = () => {
+        const arr = Array.from(Array(5000).keys())
+        arr.map(value => {
+            post(API.URL_ADD_ALBUM, { nameAlbum: "a" + value, email: user.dataUser.email })
+                .then(res => {
+
+                })
+                .catch(err => {
+
+                })
+        })
+    }
+
     return (
         <div style={{ backgroundColor: darkmode ? "white" : "#1f2125" }} className='my-album'>
             <Search search={search} setSearch={setSearch}></Search>
@@ -153,7 +167,7 @@ export default function MyAlbum() {
             </div>}
 
             <div className='my-album-is-me'>
-                <Typography onClick={CheckToken} sx={{ fontSize: '20px', fontWeight: '600', color: darkmode ? "black" : "#F6CB18" }} variant="h3" color="text.secondary" gutterBottom>
+                <Typography onClick={handleTest} sx={{ fontSize: '20px', fontWeight: '600', color: darkmode ? "black" : "#F6CB18" }} variant="h3" color="text.secondary" gutterBottom>
                     Album của bạn
                 </Typography>
                 <Fab style={{ background: darkmode ? "#1976d2" : "#F6CB18" }} onClick={handleOpen} color="primary" aria-label="add">
